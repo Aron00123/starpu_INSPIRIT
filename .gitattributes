@@ -1,2 +1,1 @@
-path/to/your-large-file filter=lfs diff=lfs merge=lfs -text
-sched_ctx_hypervisor/examples/cholesky_2ctxs/core filter=lfs diff=lfs merge=lfs -text
+sched_ctx_hypervisor/examples/cholesky_2ctxs/core filter=lfs diff=lfs merge=lfs -tex
