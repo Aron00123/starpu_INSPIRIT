@@ -100,6 +100,13 @@ struct _starpu_sched_ctx
 	/** max GPUs to execute*/
 	int max_ngpus;
 
+	int auto_opt;
+	// __gzh__
+
+	int p_list;
+	int *nready_list;
+	double *time_list;
+
 	/** in case we delete the context leave resources to the inheritor*/
 	unsigned inheritor;
 
@@ -107,11 +114,11 @@ struct _starpu_sched_ctx
 	   to this context*/
 	unsigned finished_submit;
 
-        /** By default we have a binary type of priority: either a task is a priority
-         * task (level 1) or it is not (level 0). */
-     	int min_priority;
+	/** By default we have a binary type of priority: either a task is a priority
+	 * task (level 1) or it is not (level 0). */
+	int min_priority;
 	int max_priority;
-     	int min_priority_is_set;
+	int min_priority_is_set;
 	int max_priority_is_set;
 
 	/** hwloc tree structure of workers */
@@ -122,10 +129,10 @@ struct _starpu_sched_ctx
 #ifdef STARPU_USE_SC_HYPERVISOR
 	/** a structure containing a series of performance counters determining the resize procedure */
 	struct starpu_sched_ctx_performance_counters *perf_counters;
-#endif //STARPU_USE_SC_HYPERVISOR
+#endif // STARPU_USE_SC_HYPERVISOR
 
 	/** callback called when the context finished executed its submitted tasks */
-	void (*close_callback)(unsigned sched_ctx_id, void* args);
+	void (*close_callback)(unsigned sched_ctx_id, void *args);
 	void *close_args;
 
 	/** value placing the contexts in their hierarchy */
@@ -170,24 +177,28 @@ struct _starpu_sched_ctx
 
 /** per-worker list of deferred ctx_change ops */
 LIST_TYPE(_starpu_ctx_change,
-	int sched_ctx_id;
-	int op;
-	int nworkers_to_notify;
-	int *workerids_to_notify;
-	int nworkers_to_change;
-	int *workerids_to_change;
-);
+		  int sched_ctx_id;
+		  int op;
+		  int nworkers_to_notify;
+		  int *workerids_to_notify;
+		  int nworkers_to_change;
+		  int *workerids_to_change;);
 
 struct _starpu_machine_config;
 
 /** init sched_ctx_id of all contextes*/
 void _starpu_init_all_sched_ctxs(struct _starpu_machine_config *config);
 
+int starpu_sched_ctx_get_auto_opt(unsigned sched_ctx_id);
+// __gzh__
+
+void starpu_sched_ctx_print_nready_time_list(unsigned sched_ctx_id);
+
 /** allocate all structures belonging to a context */
-struct _starpu_sched_ctx*  _starpu_create_sched_ctx(struct starpu_sched_policy *policy, int *workerid, int nworkerids, unsigned is_init_sched, const char *sched_name,
-						    int min_prio_set, int min_prio,
-						    int max_prio_set, int max_prio, unsigned awake_workers, void (*sched_policy_callback)(unsigned), void *user_data,
-						    int nsub_ctxs, int *sub_ctxs, int nsms);
+struct _starpu_sched_ctx *_starpu_create_sched_ctx(struct starpu_sched_policy *policy, int *workerid, int nworkerids, unsigned is_init_sched, const char *sched_name,
+												   int min_prio_set, int min_prio,
+												   int max_prio_set, int max_prio, unsigned awake_workers, void (*sched_policy_callback)(unsigned), void *user_data,
+												   int nsub_ctxs, int *sub_ctxs, int nsms);
 
 /** delete all sched_ctx */
 void _starpu_delete_all_sched_ctxs();
@@ -238,20 +249,20 @@ int _starpu_workers_able_to_execute_task(struct starpu_task *task, struct _starp
 
 unsigned _starpu_sched_ctx_allow_hypervisor(unsigned sched_ctx_id);
 
-struct starpu_perfmodel_arch * _starpu_sched_ctx_get_perf_archtype(unsigned sched_ctx);
+struct starpu_perfmodel_arch *_starpu_sched_ctx_get_perf_archtype(unsigned sched_ctx);
 #ifdef STARPU_USE_SC_HYPERVISOR
 /** Notifies the hypervisor that a tasks was poped from the workers' list */
 void _starpu_sched_ctx_post_exec_task_cb(int workerid, struct starpu_task *task, size_t data_size, uint32_t footprint);
 
-#endif //STARPU_USE_SC_HYPERVISOR
+#endif // STARPU_USE_SC_HYPERVISOR
 
 void starpu_sched_ctx_add_combined_workers(int *combined_workers_to_add, unsigned n_combined_workers_to_add, unsigned sched_ctx_id);
 
 /** if the worker is the master of a parallel context, and the job is meant to be executed on this parallel context, return a pointer to the context */
 struct _starpu_sched_ctx *__starpu_sched_ctx_get_sched_ctx_for_worker_and_job(struct _starpu_worker *worker, struct _starpu_job *j);
 
-#define _starpu_sched_ctx_get_sched_ctx_for_worker_and_job(w,j) \
-	(_starpu_get_nsched_ctxs() <= 1 ? _starpu_get_sched_ctx_struct(0) : __starpu_sched_ctx_get_sched_ctx_for_worker_and_job((w),(j)))
+#define _starpu_sched_ctx_get_sched_ctx_for_worker_and_job(w, j) \
+	(_starpu_get_nsched_ctxs() <= 1 ? _starpu_get_sched_ctx_struct(0) : __starpu_sched_ctx_get_sched_ctx_for_worker_and_job((w), (j)))
 
 static inline struct _starpu_sched_ctx *_starpu_get_sched_ctx_struct(unsigned id);
 
@@ -264,7 +275,7 @@ static inline int _starpu_sched_ctx_check_write_locked(unsigned sched_ctx_id)
 
 static inline void _starpu_sched_ctx_lock_write(unsigned sched_ctx_id)
 {
-	STARPU_ASSERT (sched_ctx_id <= STARPU_NMAX_SCHED_CTXS);
+	STARPU_ASSERT(sched_ctx_id <= STARPU_NMAX_SCHED_CTXS);
 	struct _starpu_sched_ctx *sched_ctx = _starpu_get_sched_ctx_struct(sched_ctx_id);
 	STARPU_HG_DISABLE_CHECKING(sched_ctx->lock_write_owner);
 	STARPU_ASSERT(!starpu_pthread_equal(sched_ctx->lock_write_owner, starpu_pthread_self()));
@@ -275,7 +286,7 @@ static inline void _starpu_sched_ctx_lock_write(unsigned sched_ctx_id)
 
 static inline void _starpu_sched_ctx_unlock_write(unsigned sched_ctx_id)
 {
-	STARPU_ASSERT (sched_ctx_id <= STARPU_NMAX_SCHED_CTXS);
+	STARPU_ASSERT(sched_ctx_id <= STARPU_NMAX_SCHED_CTXS);
 	struct _starpu_sched_ctx *sched_ctx = _starpu_get_sched_ctx_struct(sched_ctx_id);
 	STARPU_HG_DISABLE_CHECKING(sched_ctx->lock_write_owner);
 	STARPU_ASSERT(starpu_pthread_equal(sched_ctx->lock_write_owner, starpu_pthread_self()));
@@ -286,7 +297,7 @@ static inline void _starpu_sched_ctx_unlock_write(unsigned sched_ctx_id)
 
 static inline void _starpu_sched_ctx_lock_read(unsigned sched_ctx_id)
 {
-	STARPU_ASSERT (sched_ctx_id <= STARPU_NMAX_SCHED_CTXS);
+	STARPU_ASSERT(sched_ctx_id <= STARPU_NMAX_SCHED_CTXS);
 	struct _starpu_sched_ctx *sched_ctx = _starpu_get_sched_ctx_struct(sched_ctx_id);
 	STARPU_HG_DISABLE_CHECKING(sched_ctx->lock_write_owner);
 	STARPU_ASSERT(!starpu_pthread_equal(sched_ctx->lock_write_owner, starpu_pthread_self()));
@@ -296,7 +307,7 @@ static inline void _starpu_sched_ctx_lock_read(unsigned sched_ctx_id)
 
 static inline void _starpu_sched_ctx_unlock_read(unsigned sched_ctx_id)
 {
-	STARPU_ASSERT (sched_ctx_id <= STARPU_NMAX_SCHED_CTXS);
+	STARPU_ASSERT(sched_ctx_id <= STARPU_NMAX_SCHED_CTXS);
 	struct _starpu_sched_ctx *sched_ctx = _starpu_get_sched_ctx_struct(sched_ctx_id);
 	STARPU_HG_DISABLE_CHECKING(sched_ctx->lock_write_owner);
 	STARPU_ASSERT(!starpu_pthread_equal(sched_ctx->lock_write_owner, starpu_pthread_self()));
@@ -307,7 +318,7 @@ static inline void _starpu_sched_ctx_unlock_read(unsigned sched_ctx_id)
 static inline unsigned _starpu_sched_ctx_worker_is_master_for_child_ctx(unsigned sched_ctx_id, unsigned workerid, struct starpu_task *task)
 {
 	unsigned child_sched_ctx = starpu_sched_ctx_worker_is_master_for_child_ctx(workerid, sched_ctx_id);
-	if(child_sched_ctx != STARPU_NMAX_SCHED_CTXS)
+	if (child_sched_ctx != STARPU_NMAX_SCHED_CTXS)
 	{
 		starpu_sched_ctx_move_task_to_ctx_locked(task, child_sched_ctx, 1);
 		starpu_sched_ctx_revert_task_counters_ctx_locked(sched_ctx_id, task->flops);

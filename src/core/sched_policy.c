@@ -528,6 +528,8 @@ int _starpu_push_task(struct _starpu_job *j)
 	return _starpu_repush_task(j);
 }
 
+static int initialized = 0;
+
 int _starpu_repush_task(struct _starpu_job *j)
 {
 	struct starpu_task *task = j->task;
@@ -635,6 +637,8 @@ int _starpu_repush_task(struct _starpu_job *j)
 	if (task->name != NULL && strcmp(task->name, "execute_on_all_wrapper") != 0)
 	{
 		printf("[LOGGING] push task %s at %lf\n", task->name, time_now);
+		sched_ctx->time_list[sched_ctx->p_list] = time_now;
+		sched_ctx->nready_list[sched_ctx->p_list++] = starpu_task_nready();
 	}
 
 	ret = _starpu_push_task_to_workers(task);
@@ -1150,6 +1154,9 @@ profiling:
 	if (task->name != NULL && strcmp(task->name, "execute_on_all_wrapper") != 0)
 	{
 		printf("[LOGGING] pop task %s at %lf from worker %u\n", task->name, time_now, worker->workerid);
+		struct _starpu_sched_ctx *sched_ctx = _starpu_get_sched_ctx_struct(task->sched_ctx);
+		sched_ctx->time_list[sched_ctx->p_list] = time_now;
+		sched_ctx->nready_list[sched_ctx->p_list++] = starpu_task_nready();
 	}
 
 	return task;

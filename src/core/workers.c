@@ -70,8 +70,7 @@
 #endif
 #endif
 
-
-static int asynchronous_copy_disabled[STARPU_MAX_RAM+1];
+static int asynchronous_copy_disabled[STARPU_MAX_RAM + 1];
 
 /* global knobs */
 static int __g_calibrate_knob;
@@ -81,10 +80,10 @@ static int __g_enable_catch_signal_knob;
 static int __w_bind_to_pu_knob;
 static int __w_enable_worker_knob;
 
-static struct starpu_perf_knob_group * __kg_starpu_global;
-static struct starpu_perf_knob_group * __kg_starpu_worker__per_worker;
+static struct starpu_perf_knob_group *__kg_starpu_global;
+static struct starpu_perf_knob_group *__kg_starpu_worker__per_worker;
 
-static void global_knobs__set(const struct starpu_perf_knob * const knob, void *context, const struct starpu_perf_knob_value * const value)
+static void global_knobs__set(const struct starpu_perf_knob *const knob, void *context, const struct starpu_perf_knob_value *const value)
 {
 	/* context is not used for global knobs */
 	STARPU_ASSERT(context == NULL);
@@ -104,7 +103,7 @@ static void global_knobs__set(const struct starpu_perf_knob * const knob, void *
 		abort();
 	}
 }
-static void global_knobs__get(const struct starpu_perf_knob * const knob, void *context,       struct starpu_perf_knob_value * const value)
+static void global_knobs__get(const struct starpu_perf_knob *const knob, void *context, struct starpu_perf_knob_value *const value)
 {
 	/* context is not used for global knobs */
 	STARPU_ASSERT(context == NULL);
@@ -125,10 +124,10 @@ static void global_knobs__get(const struct starpu_perf_knob * const knob, void *
 	}
 }
 
-static void worker_knobs__set(const struct starpu_perf_knob * const knob, void *context, const struct starpu_perf_knob_value * const value)
+static void worker_knobs__set(const struct starpu_perf_knob *const knob, void *context, const struct starpu_perf_knob_value *const value)
 {
 	const unsigned workerid = *(unsigned *)context;
-	struct _starpu_worker * const worker = _starpu_get_worker_struct(workerid);
+	struct _starpu_worker *const worker = _starpu_get_worker_struct(workerid);
 	if (knob->id == __w_bind_to_pu_knob)
 	{
 		STARPU_ASSERT(value->val_int32_t >= 0);
@@ -144,10 +143,10 @@ static void worker_knobs__set(const struct starpu_perf_knob * const knob, void *
 		abort();
 	}
 }
-static void worker_knobs__get(const struct starpu_perf_knob * const knob, void *context,       struct starpu_perf_knob_value * const value)
+static void worker_knobs__get(const struct starpu_perf_knob *const knob, void *context, struct starpu_perf_knob_value *const value)
 {
 	const unsigned workerid = *(unsigned *)context;
-	struct _starpu_worker * const worker = _starpu_get_worker_struct(workerid);
+	struct _starpu_worker *const worker = _starpu_get_worker_struct(workerid);
 	if (knob->id == __w_bind_to_pu_knob)
 	{
 		value->val_int32_t = worker->bindid;
@@ -229,7 +228,7 @@ void _starpu_driver_info_register(enum starpu_worker_archtype archtype, const st
 	starpu_driver_info[archtype] = *info;
 }
 
-struct _starpu_memory_driver_info starpu_memory_driver_info[STARPU_MAX_RAM+1];
+struct _starpu_memory_driver_info starpu_memory_driver_info[STARPU_MAX_RAM + 1];
 
 void _starpu_memory_driver_info_register(enum starpu_node_kind kind, const struct _starpu_memory_driver_info *info)
 {
@@ -270,13 +269,13 @@ void starpu_wait_initialized(void)
 /* Makes sure that at least one of the workers of type <arch> can execute
  * <task>, for at least one of its implementations. */
 static uint32_t _starpu_worker_exists_and_can_execute(struct starpu_task *task,
-						      enum starpu_worker_archtype arch)
+													  enum starpu_worker_archtype arch)
 {
 	_starpu_codelet_check_deprecated_fields(task->cl);
 
-        /* make sure there is a worker on the machine able to execute the
-	   task, independent of the sched_ctx, this latter may receive latter on
-	   the necessary worker - the user or the hypervisor should take care this happens */
+	/* make sure there is a worker on the machine able to execute the
+   task, independent of the sched_ctx, this latter may receive latter on
+   the necessary worker - the user or the hypervisor should take care this happens */
 
 	if (check_entire_platform && !task->cl->can_execute)
 	{
@@ -308,11 +307,11 @@ static uint32_t _starpu_worker_exists_and_can_execute(struct starpu_task *task,
 				if (task->cl->max_fpga_funcs[impl] != NULL)
 					return 1;
 				break;
-                        case STARPU_MPI_MS_WORKER:
-                        case STARPU_TCPIP_MS_WORKER:
-                                if (task->cl->cpu_funcs_name[impl] != NULL)
+			case STARPU_MPI_MS_WORKER:
+			case STARPU_TCPIP_MS_WORKER:
+				if (task->cl->cpu_funcs_name[impl] != NULL)
 					return 1;
-                                break;
+				break;
 			default:
 				STARPU_ABORT();
 			}
@@ -324,7 +323,7 @@ static uint32_t _starpu_worker_exists_and_can_execute(struct starpu_task *task,
 	struct starpu_worker_collection *workers = sched_ctx->workers;
 	struct starpu_sched_ctx_iterator it;
 	workers->init_iterator(workers, &it);
-	while(workers->has_next(workers, &it))
+	while (workers->has_next(workers, &it))
 	{
 		int i = workers->get_next(workers, &it);
 		if (starpu_worker_get_type(i) != arch)
@@ -360,11 +359,11 @@ static uint32_t _starpu_worker_exists_and_can_execute(struct starpu_task *task,
 				if (task->cl->max_fpga_funcs[impl] != NULL)
 					test_implementation = 1;
 				break;
-                        case STARPU_MPI_MS_WORKER:
-                        case STARPU_TCPIP_MS_WORKER:
-                                if (task->cl->cpu_funcs_name[impl] != NULL)
-                                        test_implementation = 1;
-                                break;
+			case STARPU_MPI_MS_WORKER:
+			case STARPU_TCPIP_MS_WORKER:
+				if (task->cl->cpu_funcs_name[impl] != NULL)
+					test_implementation = 1;
+				break;
 			default:
 				STARPU_ABORT();
 			}
@@ -396,7 +395,7 @@ uint32_t _starpu_worker_exists(struct starpu_task *task)
 	   check out all the worker mask of the machine
 	   if not we should iterate on the workers of the ctx
 	   and verify if it exists a worker able to exec the task */
-	if(task->sched_ctx == 0)
+	if (task->sched_ctx == 0)
 	{
 		if (!(task->where & _starpu_config.worker_mask))
 			return 0;
@@ -407,37 +406,37 @@ uint32_t _starpu_worker_exists(struct starpu_task *task)
 
 #if defined(STARPU_USE_CPU) || defined(STARPU_SIMGRID)
 	if ((task->where & STARPU_CPU) &&
-	    _starpu_worker_exists_and_can_execute(task, STARPU_CPU_WORKER))
+		_starpu_worker_exists_and_can_execute(task, STARPU_CPU_WORKER))
 		return 1;
 #endif
 #if defined(STARPU_USE_CUDA) || defined(STARPU_SIMGRID)
 	if ((task->where & STARPU_CUDA) &&
-	    _starpu_worker_exists_and_can_execute(task, STARPU_CUDA_WORKER))
+		_starpu_worker_exists_and_can_execute(task, STARPU_CUDA_WORKER))
 		return 1;
 #endif
 #if defined(STARPU_USE_HIP)
 	if ((task->where & STARPU_HIP) &&
-	    _starpu_worker_exists_and_can_execute(task, STARPU_HIP_WORKER))
+		_starpu_worker_exists_and_can_execute(task, STARPU_HIP_WORKER))
 		return 1;
 #endif
 #if defined(STARPU_USE_OPENCL) || defined(STARPU_SIMGRID)
 	if ((task->where & STARPU_OPENCL) &&
-	    _starpu_worker_exists_and_can_execute(task, STARPU_OPENCL_WORKER))
+		_starpu_worker_exists_and_can_execute(task, STARPU_OPENCL_WORKER))
 		return 1;
 #endif
 #if defined(STARPU_USE_MAX_FPGA)
 	if ((task->where & STARPU_MAX_FPGA) &&
-	    _starpu_worker_exists_and_can_execute(task, STARPU_MAX_FPGA_WORKER))
+		_starpu_worker_exists_and_can_execute(task, STARPU_MAX_FPGA_WORKER))
 		return 1;
 #endif
 #ifdef STARPU_USE_MPI_MASTER_SLAVE
 	if ((task->where & STARPU_MPI_MS) &&
-	    _starpu_worker_exists_and_can_execute(task, STARPU_MPI_MS_WORKER))
+		_starpu_worker_exists_and_can_execute(task, STARPU_MPI_MS_WORKER))
 		return 1;
 #endif
 #ifdef STARPU_USE_TCPIP_MASTER_SLAVE
 	if ((task->where & STARPU_TCPIP_MS) &&
-	    _starpu_worker_exists_and_can_execute(task, STARPU_TCPIP_MS_WORKER))
+		_starpu_worker_exists_and_can_execute(task, STARPU_TCPIP_MS_WORKER))
 		return 1;
 #endif
 
@@ -466,11 +465,11 @@ uint32_t _starpu_can_submit_opencl_task(void)
 
 static inline int _starpu_can_use_nth_implementation(enum starpu_worker_archtype arch, struct starpu_codelet *cl, unsigned nimpl)
 {
-	switch(arch)
+	switch (arch)
 	{
 	case STARPU_ANY_WORKER:
 	{
-		int cpu_func_enabled=1, cuda_func_enabled=1, hip_func_enabled=1, opencl_func_enabled=1;
+		int cpu_func_enabled = 1, cuda_func_enabled = 1, hip_func_enabled = 1, opencl_func_enabled = 1;
 
 #if defined(STARPU_USE_CPU) || defined(STARPU_SIMGRID)
 		starpu_cpu_func_t cpu_func = _starpu_task_get_cpu_nth_implementation(cl, nimpl);
@@ -511,7 +510,7 @@ static inline int _starpu_can_use_nth_implementation(enum starpu_worker_archtype
 		starpu_opencl_func_t func = _starpu_task_get_opencl_nth_implementation(cl, nimpl);
 		return func != NULL;
 	}
-        case STARPU_MAX_FPGA_WORKER:
+	case STARPU_MAX_FPGA_WORKER:
 	{
 		starpu_max_fpga_func_t func = _starpu_task_get_fpga_nth_implementation(cl, nimpl);
 		return func != NULL;
@@ -534,7 +533,7 @@ int _starpu_enforce_locality(unsigned workerid, struct starpu_task *task)
 		return 1;
 
 	unsigned i, requested_node = starpu_worker_get_memory_node(workerid);
-	int owner = -1, shared=-1;
+	int owner = -1, shared = -1;
 	for (i = 0; i < STARPU_TASK_GET_NBUFFERS(task); i++)
 		if (STARPU_TASK_GET_MODE(task, i) & STARPU_LOCALITY)
 		{
@@ -562,7 +561,7 @@ int _starpu_enforce_locality(unsigned workerid, struct starpu_task *task)
 static inline int _starpu_can_execute_task_any_impl(unsigned workerid, struct starpu_task *task)
 {
 
-        if (!_starpu_enforce_locality(workerid, task))
+	if (!_starpu_enforce_locality(workerid, task))
 		return 0;
 
 	if (!_starpu_config.workers[workerid].enable_knob)
@@ -571,7 +570,7 @@ static inline int _starpu_can_execute_task_any_impl(unsigned workerid, struct st
 	if (task->workerids_len)
 	{
 		size_t div = sizeof(*task->workerids) * 8;
-		if (workerid / div >= task->workerids_len || ! (task->workerids[workerid / div] & (1UL << workerid % div)))
+		if (workerid / div >= task->workerids_len || !(task->workerids[workerid / div] & (1UL << workerid % div)))
 			return 0;
 	}
 
@@ -579,7 +578,7 @@ static inline int _starpu_can_execute_task_any_impl(unsigned workerid, struct st
 #ifdef STARPU_DEVEL
 #warning FIXME: this is very expensive, while can_execute is supposed to be not very costly so schedulers can call it a lot
 #endif
-	if(starpu_worker_is_blocked_in_parallel(workerid))
+	if (starpu_worker_is_blocked_in_parallel(workerid))
 		return 0;
 
 	if (!(task->where & _starpu_config.workers[workerid].worker_mask))
@@ -594,8 +593,8 @@ int starpu_worker_can_execute_task(unsigned workerid, struct starpu_task *task, 
 
 	/* TODO: check that the task operand sizes will fit on that device */
 	return _starpu_can_execute_task_any_impl(workerid, task) &&
-		_starpu_can_use_nth_implementation(_starpu_config.workers[workerid].arch, task->cl, nimpl) &&
-		(!task->cl->can_execute || task->cl->can_execute(workerid, task, nimpl));
+		   _starpu_can_use_nth_implementation(_starpu_config.workers[workerid].arch, task->cl, nimpl) &&
+		   (!task->cl->can_execute || task->cl->can_execute(workerid, task, nimpl));
 }
 
 /* must be called with sched_mutex locked to protect state_blocked_in_parallel */
@@ -626,8 +625,7 @@ int starpu_worker_can_execute_task_impl(unsigned workerid, struct starpu_task *t
 	else
 	{
 		for (i = 0; i < STARPU_MAXIMPLEMENTATIONS; i++)
-			if (_starpu_can_use_nth_implementation(arch, cl, i)
-			 && (!task->cl->can_execute || task->cl->can_execute(workerid, task, i)))
+			if (_starpu_can_use_nth_implementation(arch, cl, i) && (!task->cl->can_execute || task->cl->can_execute(workerid, task, i)))
 			{
 				mask |= 1U << i;
 				if (!impl_mask)
@@ -664,8 +662,7 @@ int starpu_worker_can_execute_task_first_impl(unsigned workerid, struct starpu_t
 	else
 	{
 		for (i = 0; i < STARPU_MAXIMPLEMENTATIONS; i++)
-			if (_starpu_can_use_nth_implementation(arch, cl, i)
-			 && (task->cl->can_execute(workerid, task, i)))
+			if (_starpu_can_use_nth_implementation(arch, cl, i) && (task->cl->can_execute(workerid, task, i)))
 			{
 				if (nimpl)
 					*nimpl = i;
@@ -675,15 +672,12 @@ int starpu_worker_can_execute_task_first_impl(unsigned workerid, struct starpu_t
 	return 0;
 }
 
-
-
 int starpu_combined_worker_can_execute_task(unsigned workerid, struct starpu_task *task, unsigned nimpl)
 {
 	/* TODO: check that the task operand sizes will fit on that device */
 
 	struct starpu_codelet *cl = task->cl;
 	unsigned nworkers = _starpu_config.topology.nworkers;
-
 
 	if (!_starpu_enforce_locality(workerid, task))
 		return 0;
@@ -695,21 +689,21 @@ int starpu_combined_worker_can_execute_task(unsigned workerid, struct starpu_tas
 			return 0;
 
 		return !!((task->where & _starpu_config.workers[workerid].worker_mask) &&
-				_starpu_can_use_nth_implementation(_starpu_config.workers[workerid].arch, task->cl, nimpl) &&
-				(!task->cl->can_execute || task->cl->can_execute(workerid, task, nimpl)));
+				  _starpu_can_use_nth_implementation(_starpu_config.workers[workerid].arch, task->cl, nimpl) &&
+				  (!task->cl->can_execute || task->cl->can_execute(workerid, task, nimpl)));
 	}
 	else
 	{
 		if (cl->type == STARPU_SPMD
 #ifdef STARPU_HAVE_HWLOC
-				|| cl->type == STARPU_FORKJOIN
+			|| cl->type == STARPU_FORKJOIN
 #else
 #ifdef __GLIBC__
-				|| cl->type == STARPU_FORKJOIN
+			|| cl->type == STARPU_FORKJOIN
 #endif
 #endif
 
-				)
+		)
 		{
 			/* TODO we should add other types of constraints */
 
@@ -717,8 +711,8 @@ int starpu_combined_worker_can_execute_task(unsigned workerid, struct starpu_tas
 			int worker_size = (int)_starpu_config.combined_workers[workerid - nworkers].worker_size;
 			int worker0 = _starpu_config.combined_workers[workerid - nworkers].combined_workerid[0];
 			return !!((worker_size <= task->cl->max_parallelism) &&
-				_starpu_can_use_nth_implementation(_starpu_config.workers[worker0].arch, task->cl, nimpl) &&
-				(!task->cl->can_execute || task->cl->can_execute(workerid, task, nimpl)));
+					  _starpu_can_use_nth_implementation(_starpu_config.workers[worker0].arch, task->cl, nimpl) &&
+					  (!task->cl->can_execute || task->cl->can_execute(workerid, task, nimpl)));
 		}
 		else
 		{
@@ -742,7 +736,7 @@ static void _starpu_init_worker_queue(struct _starpu_worker *worker)
  * the application itself, and not by StarPU, 1 otherwise.
  */
 static unsigned _starpu_may_launch_driver(struct starpu_conf *conf,
-					  struct starpu_driver *d)
+										  struct starpu_driver *d)
 {
 	if (conf->n_not_launched_drivers == 0 || conf->not_launched_drivers == NULL)
 		return 1;
@@ -848,12 +842,12 @@ void _starpu_worker_init(struct _starpu_worker *workerarg, struct _starpu_machin
 	workerarg->has_prev_init = 0;
 
 	int ctx;
-	for(ctx = 0; ctx < STARPU_NMAX_SCHED_CTXS; ctx++)
+	for (ctx = 0; ctx < STARPU_NMAX_SCHED_CTXS; ctx++)
 		workerarg->removed_from_ctx[ctx] = 0;
 
 	workerarg->spinning_backoff = 1;
 
-	for(ctx = 0; ctx < STARPU_NMAX_SCHED_CTXS; ctx++)
+	for (ctx = 0; ctx < STARPU_NMAX_SCHED_CTXS; ctx++)
 	{
 		workerarg->shares_tasks_lists[ctx] = 0;
 		workerarg->poped_in_ctx[ctx] = 0;
@@ -891,7 +885,7 @@ void _starpu_worker_init(struct _starpu_worker *workerarg, struct _starpu_machin
 
 static void _starpu_worker_deinit(struct _starpu_worker *workerarg)
 {
-	(void) workerarg;
+	(void)workerarg;
 
 #ifdef STARPU_SIMGRID
 	starpu_pthread_queue_unregister(&workerarg->wait, &_starpu_simgrid_task_queue[workerarg->workerid]);
@@ -911,9 +905,9 @@ void _starpu_worker_start(struct _starpu_worker *worker, enum starpu_worker_arch
 
 void _starpu_driver_start(struct _starpu_worker *worker, enum starpu_worker_archtype archtype, unsigned sync STARPU_ATTRIBUTE_UNUSED)
 {
-	(void) archtype;
+	(void)archtype;
 	int devid = worker->devid;
-	(void) devid;
+	(void)devid;
 
 #ifdef STARPU_USE_FXT
 	_STARPU_TRACE_REGISTER_THREAD(worker->bindid);
@@ -932,7 +926,7 @@ void _starpu_driver_start(struct _starpu_worker *worker, enum starpu_worker_arch
 	setitimer(ITIMER_PROF, &prof_itimer, NULL);
 #endif
 
-        _STARPU_DEBUG("worker %p %d for dev %d is ready on logical cpu %d\n", worker, worker->workerid, devid, worker->bindid);
+	_STARPU_DEBUG("worker %p %d for dev %d is ready on logical cpu %d\n", worker, worker->workerid, devid, worker->bindid);
 #ifdef STARPU_HAVE_HWLOC
 	_STARPU_DEBUG("worker %p %d cpuset start at %d\n", worker, worker->workerid, hwloc_bitmap_first(worker->hwloc_cpu_set));
 #endif
@@ -995,8 +989,8 @@ static void _starpu_launch_drivers(struct _starpu_machine_config *pconfig)
 			}
 
 			/* For driver worker sets, we only start a thread for the first worker set.  */
-			if (( !driver_worker_set || driver_worker_set == worker_set) &&
-			   (! workerarg->driver_ops || _starpu_may_launch_driver(&pconfig->conf, &driver)))
+			if ((!driver_worker_set || driver_worker_set == worker_set) &&
+				(!workerarg->driver_ops || _starpu_may_launch_driver(&pconfig->conf, &driver)))
 			{
 				STARPU_PTHREAD_CREATE_ON(
 					starpu_driver_info[workerarg->arch].name_upper,
@@ -1017,10 +1011,7 @@ static void _starpu_launch_drivers(struct _starpu_machine_config *pconfig)
 		 * before starting another one, to make sure they appear in
 		 * order in the trace.
 		 */
-		if (fut_active
-			&& (!workerarg->set || workerarg->set->workers == workerarg)
-			&& (!driver_worker_set || driver_worker_set == worker_set)
-			&& workerarg->run_by_starpu == 1)
+		if (fut_active && (!workerarg->set || workerarg->set->workers == workerarg) && (!driver_worker_set || driver_worker_set == worker_set) && workerarg->run_by_starpu == 1)
 		{
 			STARPU_PTHREAD_MUTEX_LOCK(&workerarg->mutex);
 			while (!workerarg->worker_is_running)
@@ -1045,7 +1036,7 @@ static void _starpu_launch_drivers(struct _starpu_machine_config *pconfig)
 			STARPU_PTHREAD_MUTEX_LOCK(&worker_set->mutex);
 			while (!worker_set->set_is_initialized)
 				STARPU_PTHREAD_COND_WAIT(&worker_set->ready_cond,
-							 &worker_set->mutex);
+										 &worker_set->mutex);
 			STARPU_PTHREAD_MUTEX_UNLOCK(&worker_set->mutex);
 			worker_set->started = 1;
 			worker_set->wait_for_set_initialization = 0;
@@ -1083,7 +1074,7 @@ void starpu_worker_wait_for_initialisation()
 			STARPU_PTHREAD_MUTEX_LOCK(&worker_set->mutex);
 			while (!worker_set->set_is_initialized)
 				STARPU_PTHREAD_COND_WAIT(&worker_set->ready_cond,
-							 &worker_set->mutex);
+										 &worker_set->mutex);
 			STARPU_PTHREAD_MUTEX_UNLOCK(&worker_set->mutex);
 		}
 		else
@@ -1132,21 +1123,21 @@ int starpu_conf_init(struct starpu_conf *conf)
 	conf->bus_calibrate = starpu_get_env_number("STARPU_BUS_CALIBRATE");
 
 	if (conf->calibrate == -1)
-	     conf->calibrate = 0;
+		conf->calibrate = 0;
 
 	if (conf->bus_calibrate == -1)
-	     conf->bus_calibrate = 0;
+		conf->bus_calibrate = 0;
 
-	conf->use_explicit_workers_bindid = 0; /* TODO */
-	conf->use_explicit_workers_cuda_gpuid = 0; /* TODO */
-	conf->use_explicit_workers_hip_gpuid = 0; /* TODO */
-	conf->use_explicit_workers_opencl_gpuid = 0; /* TODO */
+	conf->use_explicit_workers_bindid = 0;			  /* TODO */
+	conf->use_explicit_workers_cuda_gpuid = 0;		  /* TODO */
+	conf->use_explicit_workers_hip_gpuid = 0;		  /* TODO */
+	conf->use_explicit_workers_opencl_gpuid = 0;	  /* TODO */
 	conf->use_explicit_workers_max_fpga_deviceid = 0; /* TODO */
-	conf->use_explicit_workers_mpi_ms_deviceid = 0; /* TODO */
+	conf->use_explicit_workers_mpi_ms_deviceid = 0;	  /* TODO */
 
 	conf->single_combined_worker = starpu_get_env_number("STARPU_SINGLE_COMBINED_WORKER");
 	if (conf->single_combined_worker == -1)
-	     conf->single_combined_worker = 0;
+		conf->single_combined_worker = 0;
 
 #if defined(STARPU_DATA_LOCALITY_ENFORCE)
 	conf->data_locality_enforce = 1;
@@ -1171,7 +1162,6 @@ int starpu_conf_init(struct starpu_conf *conf)
 	if (conf->disable_asynchronous_cuda_copy == -1)
 		conf->disable_asynchronous_cuda_copy = 0;
 #endif
-
 
 #if defined(STARPU_DISABLE_ASYNCHRONOUS_HIP_COPY)
 	conf->disable_asynchronous_hip_copy = 1;
@@ -1201,7 +1191,7 @@ int starpu_conf_init(struct starpu_conf *conf)
 	conf->disable_asynchronous_mpi_ms_copy = 1;
 #else
 	conf->disable_asynchronous_mpi_ms_copy = starpu_get_env_number("STARPU_DISABLE_ASYNCHRONOUS_MPI_MS_COPY");
-	if(conf->disable_asynchronous_mpi_ms_copy == -1)
+	if (conf->disable_asynchronous_mpi_ms_copy == -1)
 		conf->disable_asynchronous_mpi_ms_copy = 0;
 #endif
 
@@ -1209,7 +1199,7 @@ int starpu_conf_init(struct starpu_conf *conf)
 	conf->disable_asynchronous_tcpip_ms_copy = 1;
 #else
 	conf->disable_asynchronous_tcpip_ms_copy = starpu_get_env_number("STARPU_DISABLE_ASYNCHRONOUS_TCPIP_MS_COPY");
-	if(conf->disable_asynchronous_tcpip_ms_copy == -1)
+	if (conf->disable_asynchronous_tcpip_ms_copy == -1)
 		conf->disable_asynchronous_tcpip_ms_copy = 0;
 #endif
 
@@ -1218,10 +1208,10 @@ int starpu_conf_init(struct starpu_conf *conf)
 		conf->enable_map = 0;
 
 	/* 64MiB by default */
-	conf->trace_buffer_size = ((uint64_t) starpu_get_env_number_default("STARPU_TRACE_BUFFER_SIZE", 64)) << 20;
+	conf->trace_buffer_size = ((uint64_t)starpu_get_env_number_default("STARPU_TRACE_BUFFER_SIZE", 64)) << 20;
 
-	conf->driver_spinning_backoff_min = (unsigned) starpu_get_env_number_default("STARPU_BACKOFF_MIN", 1);
-	conf->driver_spinning_backoff_max = (unsigned) starpu_get_env_number_default("STARPU_BACKOFF_MAX", 32);
+	conf->driver_spinning_backoff_min = (unsigned)starpu_get_env_number_default("STARPU_BACKOFF_MIN", 1);
+	conf->driver_spinning_backoff_max = (unsigned)starpu_get_env_number_default("STARPU_BACKOFF_MAX", 32);
 
 	/* Do not start performance counter collection by default */
 	conf->start_perf_counter_collection = 0;
@@ -1272,8 +1262,8 @@ void _starpu_conf_check_environment(struct starpu_conf *conf)
 	_starpu_conf_set_value_against_environment("STARPU_NCUDA", &conf->ncuda, conf->precedence_over_environment_variables);
 	_starpu_conf_set_value_against_environment("STARPU_NHIP", &conf->nhip, conf->precedence_over_environment_variables);
 	_starpu_conf_set_value_against_environment("STARPU_NOPENCL", &conf->nopencl, conf->precedence_over_environment_variables);
-        _starpu_conf_set_value_against_environment("STARPU_NMAX_FPGA", &conf->nmax_fpga, conf->precedence_over_environment_variables);
-        _starpu_conf_set_value_against_environment("STARPU_NMPI_MS", &conf->nmpi_ms, conf->precedence_over_environment_variables);
+	_starpu_conf_set_value_against_environment("STARPU_NMAX_FPGA", &conf->nmax_fpga, conf->precedence_over_environment_variables);
+	_starpu_conf_set_value_against_environment("STARPU_NMPI_MS", &conf->nmpi_ms, conf->precedence_over_environment_variables);
 	_starpu_conf_set_value_against_environment("STARPU_NTCPIP_MS", &conf->ntcpip_ms, conf->precedence_over_environment_variables);
 	_starpu_conf_set_value_against_environment("STARPU_CALIBRATE", &conf->calibrate, conf->precedence_over_environment_variables);
 	_starpu_conf_set_value_against_environment("STARPU_BUS_CALIBRATE", &conf->bus_calibrate, conf->precedence_over_environment_variables);
@@ -1313,7 +1303,7 @@ void _starpu_conf_check_environment(struct starpu_conf *conf)
 	_starpu_conf_set_value_against_environment("STARPU_CATCH_SIGNALS", &conf->catch_signals, conf->precedence_over_environment_variables);
 }
 
-struct starpu_tree* starpu_workers_get_tree(void)
+struct starpu_tree *starpu_workers_get_tree(void)
 {
 	return _starpu_config.topology.tree;
 }
@@ -1333,7 +1323,7 @@ static void _fill_tree(struct starpu_tree *tree, hwloc_obj_t curr_obj, unsigned 
 	arity = curr_obj->arity;
 #else
 	arity = 0;
-	for(i = 0; i < curr_obj->arity; i++)
+	for (i = 0; i < curr_obj->arity; i++)
 	{
 		if (!NORMAL_CHILD(curr_obj->children[i]))
 			/* I/O stuff, stop caring */
@@ -1345,14 +1335,14 @@ static void _fill_tree(struct starpu_tree *tree, hwloc_obj_t curr_obj, unsigned 
 	if (arity == 1)
 	{
 		/* Nothing interestin here, skip level */
-		_fill_tree(tree, curr_obj->children[0], depth+1, topology, father);
+		_fill_tree(tree, curr_obj->children[0], depth + 1, topology, father);
 		return;
 	}
 
 	starpu_tree_insert(tree, curr_obj->logical_index, depth, curr_obj->type == HWLOC_OBJ_PU, arity, father);
 	starpu_tree_prepare_children(arity, tree);
 	j = 0;
-	for(i = 0; i < arity; i++)
+	for (i = 0; i < arity; i++)
 	{
 		hwloc_obj_t child = curr_obj->children[i];
 		if (!NORMAL_CHILD(child))
@@ -1363,7 +1353,7 @@ static void _fill_tree(struct starpu_tree *tree, hwloc_obj_t curr_obj, unsigned 
 		hwloc_obj_snprintf(string, sizeof(string), topology, child, "#", 0);
 		printf("%*s%s %d is_pu %d \n", 0, "", string, child->logical_index, child->type == HWLOC_OBJ_PU);
 #endif
-		_fill_tree(&tree->nodes[j], child, depth+1, topology, tree);
+		_fill_tree(&tree->nodes[j], child, depth + 1, topology, tree);
 		j++;
 	}
 }
@@ -1391,7 +1381,7 @@ static void _starpu_build_tree(void)
 
 typedef void (*hook_func_t)(void);
 static hook_func_t _hook_funcs[10];
-static int _hook_func_nb=0;
+static int _hook_func_nb = 0;
 
 void _starpu_crash_add_hook(void (*hook_func)(void))
 {
@@ -1405,7 +1395,7 @@ void _starpu_crash_call_hooks()
 	int i;
 
 	/*_STARPU_DISP("Time: %f\n", starpu_timing_now());*/
-	for(i=0 ; i<_hook_func_nb; i++)
+	for (i = 0; i < _hook_func_nb; i++)
 		_hook_funcs[i]();
 }
 
@@ -1468,22 +1458,22 @@ void _starpu_catch_signals(void)
 	if (_starpu_config.conf.catch_signals == 1)
 	{
 		static void (*old_sig_act)(int);
-		old_sig_act  = signal(SIGINT, _starpu_handler);
+		old_sig_act = signal(SIGINT, _starpu_handler);
 		if (old_sig_act != _starpu_handler)
-			act_sigint  = old_sig_act;
+			act_sigint = old_sig_act;
 
 		old_sig_act = signal(SIGSEGV, _starpu_handler);
 		if (old_sig_act != _starpu_handler)
-			act_sigsegv  = old_sig_act;
+			act_sigsegv = old_sig_act;
 
 		old_sig_act = signal(SIGABRT, _starpu_handler);
 		if (old_sig_act != _starpu_handler)
-			act_sigabrt  = old_sig_act;
+			act_sigabrt = old_sig_act;
 
 #ifdef SIGTRAP
 		old_sig_act = signal(SIGTRAP, _starpu_handler);
 		if (old_sig_act != _starpu_handler)
-			act_sigtrap  = old_sig_act;
+			act_sigtrap = old_sig_act;
 #endif
 	}
 	else
@@ -1549,7 +1539,7 @@ int starpu_init(struct starpu_conf *user_conf)
 int starpu_initialize(struct starpu_conf *user_conf, int *argc, char ***argv)
 {
 	int is_a_sink = 0; /* Always defined. If the MP infrastructure is not
-			    * used, we cannot be a sink. */
+						* used, we cannot be a sink. */
 	unsigned worker;
 
 #if !defined(STARPU_SIMGRID) && !defined(STARPU_USE_MP)
@@ -1584,20 +1574,20 @@ int starpu_initialize(struct starpu_conf *user_conf, int *argc, char ***argv)
 	_starpu_set_argc_argv(argc, argv);
 
 #ifdef STARPU_USE_MPI_MASTER_SLAVE
-        if (_starpu_mpi_common_mp_init() == -ENODEV)
-        {
-                initialized = UNINITIALIZED;
-                return -ENODEV;
-        }
-# endif
+	if (_starpu_mpi_common_mp_init() == -ENODEV)
+	{
+		initialized = UNINITIALIZED;
+		return -ENODEV;
+	}
+#endif
 
 #ifdef STARPU_USE_TCPIP_MASTER_SLAVE
-        if (_starpu_tcpip_common_mp_init() == -ENODEV)
-        {
-                initialized = UNINITIALIZED;
-                return -ENODEV;
-        }
-# endif
+	if (_starpu_tcpip_common_mp_init() == -ENODEV)
+	{
+		initialized = UNINITIALIZED;
+		return -ENODEV;
+	}
+#endif
 
 	/* If StarPU was configured to use MP sinks, we have to control the
 	 * kind on node we are running on : host or sink ? */
@@ -1656,9 +1646,7 @@ int starpu_initialize(struct starpu_conf *user_conf, int *argc, char ***argv)
 #ifdef __linux__
 	{
 		struct utsname buf;
-		if (uname(&buf) == 0
-		 && (!strncmp(buf.release, "4.7.", 4)
-		  || !strncmp(buf.release, "4.8.", 4)))
+		if (uname(&buf) == 0 && (!strncmp(buf.release, "4.7.", 4) || !strncmp(buf.release, "4.8.", 4)))
 			_STARPU_DISP("Warning: This system is running a 4.7 or 4.8 kernel. These have a severe scheduling performance regression issue, please upgrade to at least 4.9.\n");
 	}
 #endif
@@ -1679,14 +1667,14 @@ int starpu_initialize(struct starpu_conf *user_conf, int *argc, char ***argv)
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	WSADATA wsadata;
-	WSAStartup(MAKEWORD(1,0), &wsadata);
+	WSAStartup(MAKEWORD(1, 0), &wsadata);
 #endif
 
 	STARPU_AYU_PREINIT();
 	/* store the pointer to the user explicit configuration during the
 	 * initialization */
 	if (user_conf == NULL)
-		 starpu_conf_init(&_starpu_config.conf);
+		starpu_conf_init(&_starpu_config.conf);
 	else
 	{
 		if (user_conf->magic != 42)
@@ -1763,12 +1751,12 @@ int starpu_initialize(struct starpu_conf *user_conf, int *argc, char ***argv)
 		_starpu_destroy_machine_config(&_starpu_config);
 
 #ifdef STARPU_USE_MPI_MASTER_SLAVE
-                if (_starpu_mpi_common_is_mp_initialized())
-                        _starpu_mpi_common_mp_deinit();
+		if (_starpu_mpi_common_is_mp_initialized())
+			_starpu_mpi_common_mp_deinit();
 #endif
 #ifdef STARPU_USE_TCPIP_MASTER_SLAVE
-                if (_starpu_tcpip_common_is_mp_initialized())
-                        _starpu_tcpip_common_mp_deinit();
+		if (_starpu_tcpip_common_is_mp_initialized())
+			_starpu_tcpip_common_mp_deinit();
 #endif
 
 		initialized = UNINITIALIZED;
@@ -1789,8 +1777,8 @@ int starpu_initialize(struct starpu_conf *user_conf, int *argc, char ***argv)
 	for (worker = 0; worker < _starpu_config.topology.nworkers; worker++)
 		_starpu_worker_init(&_starpu_config.workers[worker], &_starpu_config);
 
-//FIXME: find out if the variable STARPU_CHECK_ENTIRE_PLATFORM is really needed, for now, just set 1 as a default value
-	check_entire_platform = 1;//starpu_get_env_number("STARPU_CHECK_ENTIRE_PLATFORM");
+	// FIXME: find out if the variable STARPU_CHECK_ENTIRE_PLATFORM is really needed, for now, just set 1 as a default value
+	check_entire_platform = 1; // starpu_get_env_number("STARPU_CHECK_ENTIRE_PLATFORM");
 
 	_starpu_config.disable_kernels = starpu_get_env_number("STARPU_DISABLE_KERNELS");
 	STARPU_PTHREAD_KEY_CREATE(&_starpu_worker_key, NULL);
@@ -1803,7 +1791,7 @@ int starpu_initialize(struct starpu_conf *user_conf, int *argc, char ***argv)
 	if (!is_a_sink)
 	{
 		struct starpu_sched_policy *selected_policy = _starpu_select_sched_policy(&_starpu_config, _starpu_config.conf.sched_policy_name);
-		_starpu_create_sched_ctx(selected_policy, NULL, -1, 1, "init", (_starpu_config.conf.global_sched_ctx_min_priority != -1), _starpu_config.conf.global_sched_ctx_min_priority, (_starpu_config.conf.global_sched_ctx_max_priority != -1), _starpu_config.conf.global_sched_ctx_max_priority, 1, _starpu_config.conf.sched_policy_callback, NULL,  0, NULL, 0);
+		_starpu_create_sched_ctx(selected_policy, NULL, -1, 1, "init", (_starpu_config.conf.global_sched_ctx_min_priority != -1), _starpu_config.conf.global_sched_ctx_min_priority, (_starpu_config.conf.global_sched_ctx_max_priority != -1), _starpu_config.conf.global_sched_ctx_max_priority, 1, _starpu_config.conf.sched_policy_callback, NULL, 0, NULL, 0);
 	}
 
 	_starpu_initialize_registered_performance_models();
@@ -1910,7 +1898,7 @@ static void _starpu_terminate_workers(struct _starpu_machine_config *pconfig)
 		struct _starpu_worker *worker = &pconfig->workers[workerid];
 
 		/* in case StarPU termination code is called from a callback,
- 		 * we have to check if starpu_pthread_self() is the worker itself */
+		 * we have to check if starpu_pthread_self() is the worker itself */
 		if (set && set->nworkers > 0)
 		{
 			if (set->started)
@@ -1941,7 +1929,7 @@ static void _starpu_terminate_workers(struct _starpu_machine_config *pconfig)
 			}
 		}
 
-out:
+	out:
 		STARPU_ASSERT(starpu_task_prio_list_empty(&worker->local_tasks));
 		for (n = 0; n < worker->local_ordered_tasks_size; n++)
 			STARPU_ASSERT(worker->local_ordered_tasks[n] == NULL);
@@ -2096,18 +2084,18 @@ void starpu_shutdown(void)
 
 	unsigned i;
 	unsigned nb_numa_nodes = starpu_memory_nodes_get_numa_count();
-	for (i=0; i<nb_numa_nodes; i++)
+	for (i = 0; i < nb_numa_nodes; i++)
 	{
 		_starpu_free_all_automatically_allocated_buffers(i);
 	}
 
 	{
-	     int stats = starpu_get_env_number("STARPU_STATS");
-	     if (stats != 0)
-	     {
-		  _starpu_display_msi_stats(stderr);
-		  _starpu_display_alloc_cache_stats(stderr);
-	     }
+		int stats = starpu_get_env_number("STARPU_STATS");
+		if (stats != 0)
+		{
+			_starpu_display_msi_stats(stderr);
+			_starpu_display_alloc_cache_stats(stderr);
+		}
 	}
 
 	starpu_profiling_bus_helper_display_summary();
@@ -2122,12 +2110,12 @@ void starpu_shutdown(void)
 	_starpu_terminate_workers(&_starpu_config);
 
 	{
-	     int stats = starpu_get_env_number("STARPU_MEMORY_STATS");
-	     if (stats != 0)
-	     {
-		  // Display statistics on data which have not been unregistered
-		  starpu_data_display_memory_stats();
-	     }
+		int stats = starpu_get_env_number("STARPU_MEMORY_STATS");
+		if (stats != 0)
+		{
+			// Display statistics on data which have not been unregistered
+			starpu_data_display_memory_stats();
+		}
 	}
 
 	_starpu_delete_all_sched_ctxs();
@@ -2176,7 +2164,7 @@ void starpu_shutdown(void)
 	STARPU_PTHREAD_MUTEX_UNLOCK(&init_mutex);
 
 	/* Clear memory */
-	free((char*) _starpu_config.conf.sched_policy_name);
+	free((char *)_starpu_config.conf.sched_policy_name);
 	if (_starpu_config.conf.n_cuda_opengl_interoperability)
 		free(_starpu_config.conf.cuda_opengl_interoperability);
 	if (_starpu_config.conf.n_not_launched_drivers)
@@ -2184,13 +2172,13 @@ void starpu_shutdown(void)
 	STARPU_AYU_FINISH();
 
 #ifdef STARPU_USE_MPI_MASTER_SLAVE
-    if (_starpu_mpi_common_is_mp_initialized())
-        _starpu_mpi_common_mp_deinit();
+	if (_starpu_mpi_common_is_mp_initialized())
+		_starpu_mpi_common_mp_deinit();
 #endif
 
 #ifdef STARPU_USE_TCPIP_MASTER_SLAVE
-    if (_starpu_tcpip_common_is_mp_initialized())
-        _starpu_tcpip_common_mp_deinit();
+	if (_starpu_tcpip_common_is_mp_initialized())
+		_starpu_tcpip_common_mp_deinit();
 #endif
 	_starpu_print_idle_time();
 	_STARPU_DEBUG("Shutdown finished\n");
@@ -2203,18 +2191,17 @@ void starpu_shutdown(void)
 
 unsigned starpu_worker_archtype_is_valid(enum starpu_worker_archtype type)
 {
-	return (type >= 0 && type < STARPU_NARCH)
-		&& (starpu_driver_info[type].name_upper != NULL);
+	return (type >= 0 && type < STARPU_NARCH) && (starpu_driver_info[type].name_upper != NULL);
 }
 
 enum starpu_worker_archtype starpu_arch_mask_to_worker_archtype(unsigned mask)
 {
-	STARPU_ASSERT(mask && !(mask & (mask-1))); // ensures that only one bit of the mask is set
+	STARPU_ASSERT(mask && !(mask & (mask - 1))); // ensures that only one bit of the mask is set
 
-	enum starpu_worker_archtype worker_type = ffs(mask)-2; // ffs(mask) is the indice of the lesser bit
+	enum starpu_worker_archtype worker_type = ffs(mask) - 2; // ffs(mask) is the indice of the lesser bit
 
 	STARPU_ASSERT(worker_type >= 0 && worker_type < STARPU_NARCH); // worker_type is positive and lesser than arch number
-	STARPU_ASSERT(starpu_worker_archtype_is_valid(worker_type)); // worker_type is a valid worker architecture
+	STARPU_ASSERT(starpu_worker_archtype_is_valid(worker_type));   // worker_type is a valid worker architecture
 
 	return worker_type;
 }
@@ -2271,9 +2258,7 @@ unsigned starpu_worker_is_blocked_in_parallel(int workerid)
 		 * and also waits for any pending blocking state change
 		 * requests to be processed, in order to not obtain an
 		 * ephemeral information */
-		while (!worker->state_relax_refcnt
-				|| worker->state_block_in_parallel_req
-				|| worker->state_unblock_in_parallel_req)
+		while (!worker->state_relax_refcnt || worker->state_block_in_parallel_req || worker->state_unblock_in_parallel_req)
 		{
 			STARPU_PTHREAD_COND_WAIT(&worker->sched_cond, &worker->sched_mutex);
 		}
@@ -2336,7 +2321,6 @@ unsigned starpu_cuda_worker_get_count(void)
 	return starpu_worker_get_count_by_type(STARPU_CUDA_WORKER);
 }
 
-
 unsigned starpu_hip_worker_get_count(void)
 {
 	return starpu_worker_get_count_by_type(STARPU_HIP_WORKER);
@@ -2357,7 +2341,6 @@ int starpu_asynchronous_cuda_copy_disabled(void)
 	return _starpu_config.conf.disable_asynchronous_cuda_copy;
 }
 
-
 int starpu_asynchronous_hip_copy_disabled(void)
 {
 	return _starpu_config.conf.disable_asynchronous_hip_copy;
@@ -2375,12 +2358,12 @@ int starpu_asynchronous_max_fpga_copy_disabled(void)
 
 int starpu_asynchronous_mpi_ms_copy_disabled(void)
 {
-        return _starpu_config.conf.disable_asynchronous_mpi_ms_copy;
+	return _starpu_config.conf.disable_asynchronous_mpi_ms_copy;
 }
 
 int starpu_asynchronous_tcpip_ms_copy_disabled(void)
 {
-        return _starpu_config.conf.disable_asynchronous_tcpip_ms_copy;
+	return _starpu_config.conf.disable_asynchronous_tcpip_ms_copy;
 }
 
 /* Return whether memory mapping is disabled (0) or enabled (1) */
@@ -2412,7 +2395,7 @@ unsigned starpu_tcpip_ms_worker_get_count(void)
 #undef starpu_worker_get_id
 int starpu_worker_get_id(void)
 {
-	struct _starpu_worker * worker;
+	struct _starpu_worker *worker;
 
 	worker = _starpu_get_local_worker_key();
 	if (worker)
@@ -2431,10 +2414,10 @@ int starpu_worker_get_id(void)
 #undef _starpu_worker_get_id_check
 unsigned _starpu_worker_get_id_check(const char *f, int l)
 {
-	(void) f;
-	(void) l;
+	(void)f;
+	(void)l;
 	int id = _starpu_worker_get_id();
-	STARPU_ASSERT_MSG(id>=0, "%s:%d Cannot be called from outside a worker\n", f, l);
+	STARPU_ASSERT_MSG(id >= 0, "%s:%d Cannot be called from outside a worker\n", f, l);
 	return id;
 }
 
@@ -2589,24 +2572,24 @@ int starpu_worker_get_devids(enum starpu_worker_archtype type, int *devids, int 
 
 	unsigned ndevids = 0;
 
-	if(ndevice_workers > 0)
+	if (ndevice_workers > 0)
 	{
 		unsigned id, devid;
 		int cnt = 0;
 		unsigned found = 0;
-		for(id = 0; id < ndevice_workers; id++)
+		for (id = 0; id < ndevice_workers; id++)
 		{
 			int curr_devid;
 			curr_devid = _starpu_config.workers[workerids[id]].devid;
-			for(devid = 0; devid < ndevids; devid++)
+			for (devid = 0; devid < ndevids; devid++)
 			{
-				if(curr_devid == devids[devid])
+				if (curr_devid == devids[devid])
 				{
 					found = 1;
 					break;
 				}
 			}
-			if(!found)
+			if (!found)
 			{
 				devids[ndevids++] = curr_devid;
 				cnt++;
@@ -2614,7 +2597,7 @@ int starpu_worker_get_devids(enum starpu_worker_archtype type, int *devids, int 
 			else
 				found = 0;
 
-			if(cnt == num)
+			if (cnt == num)
 				break;
 		}
 	}
@@ -2641,7 +2624,7 @@ int starpu_worker_get_bindid(int workerid)
 
 int starpu_bindid_get_workerids(int bindid, int **workerids)
 {
-	if (bindid >= (int) _starpu_config.nbindid)
+	if (bindid >= (int)_starpu_config.nbindid)
 		return 0;
 	*workerids = _starpu_config.bindid_workers[bindid].workerids;
 	return _starpu_config.bindid_workers[bindid].nworkers;
@@ -2655,7 +2638,7 @@ int starpu_worker_get_stream_workerids(unsigned devid, int *workerids, enum star
 	for (id = 0; id < nworkers; id++)
 	{
 		if (_starpu_config.workers[id].devid == devid &&
-		    (type == STARPU_ANY_WORKER || _starpu_config.workers[id].arch == type))
+			(type == STARPU_ANY_WORKER || _starpu_config.workers[id].arch == type))
 			workerids[nw++] = id;
 	}
 	return nw;
@@ -2761,29 +2744,29 @@ int _starpu_worker_get_nids_ctx_free_by_type(enum starpu_worker_archtype type, i
 				return cnt;
 			unsigned found = 0;
 			int s;
-			for(s = 1; s < STARPU_NMAX_SCHED_CTXS; s++)
+			for (s = 1; s < STARPU_NMAX_SCHED_CTXS; s++)
 			{
-				if(_starpu_config.sched_ctxs[s].id != STARPU_NMAX_SCHED_CTXS)
+				if (_starpu_config.sched_ctxs[s].id != STARPU_NMAX_SCHED_CTXS)
 				{
 					struct starpu_worker_collection *workers = _starpu_config.sched_ctxs[s].workers;
 					struct starpu_sched_ctx_iterator it;
 
 					workers->init_iterator(workers, &it);
-					while(workers->has_next(workers, &it))
+					while (workers->has_next(workers, &it))
 					{
 						unsigned worker = workers->get_next(workers, &it);
-						if(worker == id)
+						if (worker == id)
 						{
 							found = 1;
 							break;
 						}
 					}
 
-					if(found)
+					if (found)
 						break;
 				}
 			}
-			if(!found)
+			if (!found)
 				workerids[cnt++] = id;
 		}
 	}
@@ -2802,7 +2785,7 @@ unsigned starpu_worker_get_sched_ctx_list(int workerid, unsigned **sched_ctxs)
 {
 	unsigned s = 0;
 	unsigned nsched_ctxs = _starpu_worker_get_nsched_ctxs(workerid);
-	_STARPU_MALLOC(*sched_ctxs, nsched_ctxs*sizeof(unsigned));
+	_STARPU_MALLOC(*sched_ctxs, nsched_ctxs * sizeof(unsigned));
 	struct _starpu_worker *worker = _starpu_get_worker_struct(workerid);
 	struct _starpu_sched_ctx_elt *e = NULL;
 	struct _starpu_sched_ctx_list_iterator list_it;
@@ -2837,23 +2820,23 @@ const char *starpu_worker_get_type_as_env_var(enum starpu_worker_archtype type)
 void _starpu_worker_set_stream_ctx(unsigned workerid, struct _starpu_sched_ctx *sched_ctx)
 {
 	STARPU_ASSERT(workerid < starpu_worker_get_count());
-        struct _starpu_worker *w = _starpu_get_worker_struct(workerid);
-        w->stream_ctx = sched_ctx;
+	struct _starpu_worker *w = _starpu_get_worker_struct(workerid);
+	w->stream_ctx = sched_ctx;
 }
 
-struct _starpu_sched_ctx* _starpu_worker_get_ctx_stream(unsigned stream_workerid)
+struct _starpu_sched_ctx *_starpu_worker_get_ctx_stream(unsigned stream_workerid)
 {
 	if (stream_workerid >= starpu_worker_get_count())
 		return NULL;
-        struct _starpu_worker *w = _starpu_get_worker_struct(stream_workerid);
-        return w->stream_ctx;
+	struct _starpu_worker *w = _starpu_get_worker_struct(stream_workerid);
+	return w->stream_ctx;
 }
 
 unsigned starpu_worker_get_sched_ctx_id_stream(unsigned stream_workerid)
 {
 	if (stream_workerid >= starpu_worker_get_count())
 		return STARPU_NMAX_SCHED_CTXS;
-        struct _starpu_worker *w = _starpu_get_worker_struct(stream_workerid);
+	struct _starpu_worker *w = _starpu_get_worker_struct(stream_workerid);
 	return w->stream_ctx != NULL ? w->stream_ctx->id : STARPU_NMAX_SCHED_CTXS;
 }
 
@@ -2868,8 +2851,8 @@ void starpu_worker_display_names(FILE *output, enum starpu_worker_archtype type)
 	{
 		int i, ids[nworkers];
 		starpu_worker_get_ids_by_type(type, ids, nworkers);
-		fprintf(output, "%d %s worker%s:\n", nworkers, starpu_worker_get_type_as_string(type), nworkers==1?"":"s");
-		for(i = 0; i < nworkers; i++)
+		fprintf(output, "%d %s worker%s:\n", nworkers, starpu_worker_get_type_as_string(type), nworkers == 1 ? "" : "s");
+		for (i = 0; i < nworkers; i++)
 		{
 			char name[256];
 			starpu_worker_get_name(ids[i], name, 256);
@@ -2885,7 +2868,7 @@ void _starpu_worker_refuse_task(struct _starpu_worker *worker, struct starpu_tas
 		int j;
 		for (j = 0; j < worker->ntasks; j++)
 		{
-			const int j_mod = (j+worker->first_task)%STARPU_MAX_PIPELINE;
+			const int j_mod = (j + worker->first_task) % STARPU_MAX_PIPELINE;
 			if (task == worker->current_tasks[j_mod])
 			{
 				worker->current_tasks[j_mod] = NULL;
@@ -2898,7 +2881,7 @@ void _starpu_worker_refuse_task(struct _starpu_worker *worker, struct starpu_tas
 				break;
 			}
 		}
-		STARPU_ASSERT(j<worker->ntasks);
+		STARPU_ASSERT(j < worker->ntasks);
 	}
 	else
 	{
@@ -3042,6 +3025,6 @@ enum starpu_node_kind starpu_worker_get_memory_node_kind(enum starpu_worker_arch
 {
 	STARPU_ASSERT(type >= 0 && type < STARPU_NARCH);
 	enum starpu_node_kind kind = starpu_driver_info[type].memory_kind;
-	STARPU_ASSERT_MSG(kind != (enum starpu_node_kind) -1, "no memory for archtype %d", type);
+	STARPU_ASSERT_MSG(kind != (enum starpu_node_kind) - 1, "no memory for archtype %d", type);
 	return kind;
 }
