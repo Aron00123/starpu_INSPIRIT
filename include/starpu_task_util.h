@@ -70,6 +70,8 @@ extern "C"
    be followed by a integer defining a priority level
 */
 #define STARPU_PRIORITY		 (5<<STARPU_MODE_SHIFT)
+#define STARPU_PRIORITY_ABI     (52<<STARPU_MODE_SHIFT)
+#define STARPU_PRIORITY_EFI     (53<<STARPU_MODE_SHIFT)
 
 /**
    \ingroup API_MPI_Support

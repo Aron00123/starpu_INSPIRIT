@@ -1250,8 +1250,10 @@ struct starpu_task
 	   ::STARPU_PRIORITY followed by an unsigned long long.
 	*/
 	int priority;
+    int priority_abi;
+    int priority_efi;
 
-	/**
+    /**
 	   Current state of the task.
 
 	   Set by StarPU.

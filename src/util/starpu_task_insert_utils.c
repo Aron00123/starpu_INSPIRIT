@@ -395,7 +395,20 @@ int _starpu_task_insert_create(struct starpu_codelet *cl, struct starpu_task *ta
 			int prio = va_arg(varg_list, int);
 			task->priority = prio;
 		}
-		else if (arg_type==STARPU_EXECUTE_ON_NODE)
+        else if (arg_type == STARPU_PRIORITY_ABI)
+        {
+            /* Followed by a priority level */
+            int prio_abi = va_arg(varg_list, int);
+            // printf("[ABI EFI]\n");
+            task->priority_abi = prio_abi;
+        }
+        else if (arg_type == STARPU_PRIORITY_EFI)
+        {
+            /* Followed by a priority level */
+            int prio_efi = va_arg(varg_list, int);
+            task->priority_efi = prio_efi;
+        }
+        else if (arg_type==STARPU_EXECUTE_ON_NODE)
 		{
 			(void)va_arg(varg_list, int);
 		}
@@ -756,7 +769,17 @@ int _fstarpu_task_insert_create(struct starpu_codelet *cl, struct starpu_task *t
 			arg_i++;
 			task->priority = *(int *)arglist[arg_i];
 		}
-		else if (arg_type == STARPU_EXECUTE_ON_NODE)
+        else if (arg_type == STARPU_PRIORITY_ABI)
+        {
+            arg_i++;
+            task->priority_abi = *(int *)arglist[arg_i];
+        }
+        else if (arg_type == STARPU_PRIORITY_EFI)
+        {
+            arg_i++;
+            task->priority_efi = *(int *)arglist[arg_i];
+        }
+        else if (arg_type == STARPU_EXECUTE_ON_NODE)
 		{
 			arg_i++;
 			(void)arglist[arg_i];

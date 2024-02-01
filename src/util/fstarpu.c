@@ -50,6 +50,8 @@ static const intptr_t fstarpu_prologue_callback_pop	  	= STARPU_PROLOGUE_CALLBAC
 static const intptr_t fstarpu_prologue_callback_pop_arg	  	= STARPU_PROLOGUE_CALLBACK_POP_ARG;
 static const intptr_t fstarpu_prologue_callback_pop_arg_nfree	 = STARPU_PROLOGUE_CALLBACK_POP_ARG_NFREE;
 static const intptr_t fstarpu_priority	= STARPU_PRIORITY;
+static const intptr_t fstarpu_priority_abi = STARPU_PRIORITY_ABI;
+static const intptr_t fstarpu_priority_efi = STARPU_PRIORITY_EFI;
 static const intptr_t fstarpu_execute_on_node	= STARPU_EXECUTE_ON_NODE;
 static const intptr_t fstarpu_execute_on_data	= STARPU_EXECUTE_ON_DATA;
 static const intptr_t fstarpu_execute_where	= STARPU_EXECUTE_WHERE;
@@ -150,7 +152,9 @@ intptr_t fstarpu_get_constant(char *s)
 	else if	(!strcmp(s, "FSTARPU_PROLOGUE_CALLBACK_POP_ARG"))	{ return fstarpu_prologue_callback_pop_arg; }
 	else if	(!strcmp(s, "FSTARPU_PROLOGUE_CALLBACK_POP_ARG_NFREE"))	{ return fstarpu_prologue_callback_pop_arg_nfree; }
 	else if	(!strcmp(s, "FSTARPU_PRIORITY"))	{ return fstarpu_priority; }
-	else if	(!strcmp(s, "FSTARPU_EXECUTE_ON_NODE"))	{ return fstarpu_execute_on_node; }
+	else if	(!strcmp(s, "FSTARPU_PRIORITY_ABI"))	{ return fstarpu_priority_abi; }
+	else if	(!strcmp(s, "FSTARPU_PRIORITY_EFI"))	{ return fstarpu_priority_efi; }
+    else if	(!strcmp(s, "FSTARPU_EXECUTE_ON_NODE"))	{ return fstarpu_execute_on_node; }
 	else if	(!strcmp(s, "FSTARPU_EXECUTE_ON_DATA"))	{ return fstarpu_execute_on_data; }
 	else if	(!strcmp(s, "FSTARPU_EXECUTE_WHERE"))	{ return fstarpu_execute_where; }
 	else if	(!strcmp(s, "FSTARPU_EXECUTE_ON_WORKER"))	{ return fstarpu_execute_on_worker; }

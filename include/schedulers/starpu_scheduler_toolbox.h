@@ -125,6 +125,7 @@ struct starpu_task *starpu_st_fifo_taskq_pop_local_task(starpu_st_fifo_taskq_t f
 */
 struct starpu_task *starpu_st_fifo_taskq_pop_every_task(starpu_st_fifo_taskq_t fifo, int workerid);
 struct starpu_task *starpu_st_fifo_taskq_pop_first_ready_task(starpu_st_fifo_taskq_t fifo_queue, unsigned workerid, int num_priorities);
+struct starpu_task *starpu_st_fifo_taskq_pop_first_ready_efi_task(starpu_st_fifo_taskq_t fifo_queue, unsigned workerid, int num_priorities);
 
 /**
    Opaque type for PRIO task queue

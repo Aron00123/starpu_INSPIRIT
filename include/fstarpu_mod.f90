@@ -47,6 +47,8 @@ module fstarpu_mod
         type(c_ptr), bind(C) :: FSTARPU_PROLOGUE_CALLBACK_POP_ARG
         type(c_ptr), bind(C) :: FSTARPU_PROLOGUE_CALLBACK_POP_ARG_NFREE
         type(c_ptr), bind(C) :: FSTARPU_PRIORITY
+        type(c_ptr), bind(C) :: FSTARPU_PRIORITY_ABI
+        type(c_ptr), bind(C) :: FSTARPU_PRIORITY_EFI
         type(c_ptr), bind(C) :: FSTARPU_EXECUTE_ON_NODE
         type(c_ptr), bind(C) :: FSTARPU_EXECUTE_ON_DATA
         type(c_ptr), bind(C) :: FSTARPU_EXECUTE_ON_WORKER
@@ -2518,6 +2520,8 @@ module fstarpu_mod
                         FSTARPU_PROLOGUE_CALLBACK_POP_ARG_NFREE       = &
                                 fstarpu_get_constant(C_CHAR_"FSTARPU_PROLOGUE_CALLBACK_POP_ARG_NFREE"//C_NULL_CHAR)
                         FSTARPU_PRIORITY        = fstarpu_get_constant(C_CHAR_"FSTARPU_PRIORITY"//C_NULL_CHAR)
+                        FSTARPU_PRIORITY_ABI    = fstarpu_get_constant(C_CHAR_"FSTARPU_PRIORITY_ABI"//C_NULL_CHAR)
+                        FSTARPU_PRIORITY_EFI    = fstarpu_get_constant(C_CHAR_"FSTARPU_PRIORITY_EFI"//C_NULL_CHAR)
                         FSTARPU_EXECUTE_ON_NODE = fstarpu_get_constant(C_CHAR_"FSTARPU_EXECUTE_ON_NODE"//C_NULL_CHAR)
                         FSTARPU_EXECUTE_ON_DATA = fstarpu_get_constant(C_CHAR_"FSTARPU_EXECUTE_ON_DATA"//C_NULL_CHAR)
                         FSTARPU_EXECUTE_ON_WORKER       = fstarpu_get_constant(C_CHAR_"FSTARPU_EXECUTE_ON_WORKER"//C_NULL_CHAR)

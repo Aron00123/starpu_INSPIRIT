@@ -225,7 +225,9 @@ int _starpu_mpi_task_decode_v(struct starpu_codelet *codelet, int me, int nb_nod
 	struct starpu_data_descr *descrs;
 	int nb_data;
 	int prio = 0;
-	int select_node_policy = STARPU_MPI_NODE_SELECTION_CURRENT_POLICY;
+    int prio_abi = 0;
+    int prio_efi = 0;
+    int select_node_policy = STARPU_MPI_NODE_SELECTION_CURRENT_POLICY;
 
 	_STARPU_TRACE_TASK_MPI_DECODE_START();
 
@@ -411,7 +413,15 @@ int _starpu_mpi_task_decode_v(struct starpu_codelet *codelet, int me, int nb_nod
 		{
 			prio = va_arg(varg_list_copy, int);
 		}
-		/* STARPU_EXECUTE_ON_NODE handled above */
+        else if (arg_type == STARPU_PRIORITY_ABI)
+        {
+            prio_abi = va_arg(varg_list_copy, int);
+        }
+        else if (arg_type == STARPU_PRIORITY_EFI)
+        {
+            prio_efi = va_arg(varg_list_copy, int);
+        }
+        /* STARPU_EXECUTE_ON_NODE handled above */
 		/* STARPU_EXECUTE_ON_DATA handled above */
 		/* STARPU_DATA_ARRAY handled above */
 		/* STARPU_DATA_MODE_ARRAY handled above */

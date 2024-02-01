@@ -137,7 +137,7 @@ extern "C"
 		int auto_opt;
 		double *nready_k_list;
 		int nready_k_list_size;
-		double *nready_lb_list;
+		int *nready_lb_list;
 		int nready_lb_list_size;
 
 		/**

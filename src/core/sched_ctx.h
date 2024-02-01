@@ -102,6 +102,10 @@ struct _starpu_sched_ctx
 
 	int auto_opt;
 	// __gzh__
+	double *nready_k_list;
+	int nready_k_list_size;
+	int *nready_lb_list;
+	int nready_lb_list_size;
 
 	int p_list;
 	int *nready_list;
@@ -191,6 +195,10 @@ void _starpu_init_all_sched_ctxs(struct _starpu_machine_config *config);
 
 int starpu_sched_ctx_get_auto_opt(unsigned sched_ctx_id);
 // __gzh__
+double *starpu_sched_ctx_get_nready_k_list(unsigned sched_ctx_id);
+int starpu_sched_ctx_get_nready_k_list_size(unsigned sched_ctx_id);
+int *starpu_sched_ctx_get_nready_lb_list(unsigned sched_ctx_id);
+int starpu_sched_ctx_get_nready_lb_list_size(unsigned sched_ctx_id);
 
 void starpu_sched_ctx_print_nready_time_list(unsigned sched_ctx_id);
 
